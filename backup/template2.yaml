@@ -1,0 +1,475 @@
+NAME: percona-cluster2
+LAST DEPLOYED: Sun Apr 21 23:02:28 2024
+NAMESPACE: percona-install
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+USER-SUPPLIED VALUES:
+backup:
+  schedule:
+  - keep: 5
+    name: volume-backup-1
+    schedule: 0 0 * * *
+    storageName: percona-backup-new
+  - keep: 5
+    name: s3-backup-1
+    schedule: 0 0 * * *
+    storageName: ceph-s3-us-west
+  storages:
+    ceph-s3-us-west:
+      s3:
+        bucket: percona-backups-test
+    percona-backup:
+      volume:
+        persistentVolumeClaim:
+          resources:
+            requests:
+              storage: 2Gi
+          storageClassName: csi-rbd-sc
+haproxy:
+  size: 1
+pxc:
+  persistence:
+    storageClass: 5Gi
+  size: 3
+
+COMPUTED VALUES:
+allowUnsafeConfigurations: false
+annotations: {}
+backup:
+  enabled: true
+  image:
+    repository: percona/percona-xtradb-cluster-operator
+    tag: 1.14.0-pxc8.0-backup-pxb8.0.35
+  imagePullSecrets: []
+  pitr:
+    enabled: false
+    resources:
+      limits: {}
+      requests: {}
+    storageName: s3-us-west-binlogs
+    timeBetweenUploads: 60
+    timeoutSeconds: 60
+  schedule:
+  - keep: 5
+    name: volume-backup-1
+    schedule: 0 0 * * *
+    storageName: percona-backup-new
+  - keep: 5
+    name: s3-backup-1
+    schedule: 0 0 * * *
+    storageName: ceph-s3-us-west
+  storages:
+    ceph-s3-us-west:
+      s3:
+        bucket: percona-backups-test
+    percona-backup:
+      volume:
+        persistentVolumeClaim:
+          resources:
+            requests:
+              storage: 2Gi
+          storageClassName: csi-rbd-sc
+crVersion: 1.14.0
+enableCRValidationWebhook: false
+finalizers:
+- delete-pxc-pods-in-order
+fullnameOverride: ""
+haproxy:
+  affinity:
+    antiAffinityTopologyKey: kubernetes.io/hostname
+  annotations: {}
+  enabled: true
+  gracePeriod: 30
+  image: ""
+  imagePullSecrets: []
+  labels: {}
+  livenessDelaySec: 300
+  livenessProbes:
+    failureThreshold: 4
+    initialDelaySeconds: 60
+    periodSeconds: 30
+    successThreshold: 1
+    timeoutSeconds: 5
+  nodeSelector: {}
+  podDisruptionBudget:
+    maxUnavailable: 1
+  readinessDelaySec: 15
+  readinessProbes:
+    failureThreshold: 3
+    initialDelaySeconds: 15
+    periodSeconds: 5
+    successThreshold: 1
+    timeoutSeconds: 1
+  resources:
+    limits: {}
+    requests:
+      cpu: 600m
+      memory: 1G
+  sidecarPVCs: []
+  sidecarResources:
+    limits: {}
+    requests: {}
+  sidecarVolumes: []
+  sidecars: []
+  size: 1
+  tolerations: []
+ignoreAnnotations: []
+ignoreLabels: []
+logcollector:
+  enabled: true
+  image: ""
+  imagePullSecrets: []
+  resources:
+    limits: {}
+    requests:
+      cpu: 200m
+      memory: 100M
+nameOverride: ""
+operatorImageRepository: percona/percona-xtradb-cluster-operator
+pause: false
+pmm:
+  enabled: false
+  image:
+    repository: percona/pmm-client
+    tag: 2.41.0
+  imagePullSecrets: []
+  resources:
+    limits: {}
+    requests:
+      cpu: 300m
+      memory: 150M
+  serverHost: monitoring-service
+  serverUser: admin
+proxysql:
+  affinity:
+    antiAffinityTopologyKey: kubernetes.io/hostname
+  annotations: {}
+  enabled: false
+  gracePeriod: 30
+  image: ""
+  imagePullSecrets: []
+  labels: {}
+  livenessDelaySec: 300
+  nodeSelector: {}
+  persistence:
+    accessMode: ReadWriteOnce
+    enabled: true
+    size: 8Gi
+  podDisruptionBudget:
+    maxUnavailable: 1
+  readinessDelaySec: 15
+  resources:
+    limits: {}
+    requests:
+      cpu: 600m
+      memory: 1G
+  sidecarPVCs: []
+  sidecarResources:
+    limits: {}
+    requests: {}
+  sidecarVolumes: []
+  sidecars: []
+  size: 3
+  tolerations: []
+pxc:
+  affinity:
+    antiAffinityTopologyKey: kubernetes.io/hostname
+  annotations: {}
+  autoRecovery: true
+  certManager: false
+  disableTLS: false
+  gracePeriod: 600
+  image:
+    repository: percona/percona-xtradb-cluster
+    tag: 8.0.35-27.1
+  imagePullSecrets: []
+  labels: {}
+  livenessDelaySec: 300
+  livenessProbes:
+    failureThreshold: 3
+    initialDelaySeconds: 300
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 5
+  nodeSelector: {}
+  persistence:
+    accessMode: ReadWriteOnce
+    enabled: true
+    size: 8Gi
+    storageClass: 5Gi
+  podDisruptionBudget:
+    maxUnavailable: 1
+  readinessDelaySec: 15
+  readinessProbes:
+    failureThreshold: 5
+    initialDelaySeconds: 15
+    periodSeconds: 30
+    successThreshold: 1
+    timeoutSeconds: 15
+  resources:
+    limits: {}
+    requests:
+      cpu: 600m
+      memory: 1G
+  sidecarPVCs: []
+  sidecarResources:
+    limits: {}
+    requests: {}
+  sidecarVolumes: []
+  sidecars: []
+  size: 3
+  tolerations: []
+secrets:
+  tls: {}
+tls: {}
+updateStrategy: SmartUpdate
+upgradeOptions:
+  apply: disabled
+  schedule: 0 4 * * *
+  versionServiceEndpoint: https://check.percona.com
+
+HOOKS:
+MANIFEST:
+---
+# Source: pxc-db/templates/cluster-ssl-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: percona-cluster2-pxc-ssl
+  namespace: percona-install
+  labels:
+    app.kubernetes.io/name: pxc-db
+    helm.sh/chart: pxc-db-1.14.1
+    app.kubernetes.io/instance: percona-cluster2
+    app.kubernetes.io/version: "1.14.0"
+    app.kubernetes.io/managed-by: Helm
+type: kubernetes.io/tls
+data:
+  ca.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURMekNDQWhlZ0F3SUJBZ0lRTmxwQzBhbTBEUmhYM1ZxTzZJZXJSVEFOQmdrcWhraUc5dzBCQVFzRkFEQWkKTVNBd0hnWURWUVFERXhkd1pYSmpiMjVoTFdOc2RYTjBaWEl5TFhCNFl5MWpZVEFlRncweU5EQTBNakl3TXpBeQpNamhhRncweU5UQTBNakl3TXpBeU1qaGFNQ0l4SURBZUJnTlZCQU1URjNCbGNtTnZibUV0WTJ4MWMzUmxjakl0CmNIaGpMV05oTUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUFxTDIyTVBkcWNFWnYKYmMrMVNaM3FtZzFHeTdkNzRhRUVZb2p4MjE3YkNVSnYrdlFkQ25oT21GOWNGUWJHNmlXQjEvd242UGRTV29nLwpaelpJblBvTnlEU3N5YjA3L3RTQlRoRnFKUTF3amhTZEtCTlVldGVvWTQ4eWZUaXFrVTNvVnFNRUVLZDVjUFloCkdWc0poWjkyM1hXUjVrdXUwVlREZVlEbnhBTnJTZmlHdWM5Y3FTUDZNMXdxSWFGbW11YXhCY1VOOVFTTzFISS8KREdmUklJTHdIU0dRYjgwcXZ5cGpjek5mYi8xYUE1VXVmaHNQR25ZdkZPQmxlak1RT3VLTW5lbnJ1ZjVYRndweQpVazVDcUplbzNsQ3RKYmg0YitMQXhCaFVMQXgvYjBQM2lCZDFDbnJnZ3h2OTNlK21oZEVKeHl2OFBCYW5Ydm5yCldzQjhrbUxEN3dJREFRQUJvMkV3WHpBT0JnTlZIUThCQWY4RUJBTUNBcVF3SFFZRFZSMGxCQll3RkFZSUt3WUIKQlFVSEF3RUdDQ3NHQVFVRkJ3TUNNQThHQTFVZEV3RUIvd1FGTUFNQkFmOHdIUVlEVlIwT0JCWUVGTWVjR2Y1MgpzUEZqaTZQbzlpc2w2NnZEbytiRE1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQ1o1ZWl6dDVTbmxJSFJkckFHCk1VUFFHTEVMUEhmdWNjV1dCbndONXY0R3NiMFJpLzVpZCtTUWtyRHltcm5nUWNVeXVpdDltU2JpZHY3RDBHZDUKMjBKVDJYZ083U1NZYXk2RGtXVDUvbXA0Z2NVT1dqZTRxZ041c1lGQ3dLS0ViampxcXE5TVpSRy9SYzNLNHoyaAppalpxNVFoSjJTZnlNYlFLMzFIc3BiYXE1eGJtQStxWGd4bTNPZjREMU1mTHFuT3VKSVNvM1lGRUxXa3JIRmQwClErUnBCc3VUME1DZGlJMkFZU002STNvdXFscmxac2Z3VDJlOVBLVzVPMzhXYmFPaEVncmVaZFdwMW1nRnNPWkQKcFlTeVE3ckNzNEgzMXBPUXlSUWh5aStFU0p0LzFmTFBlRGQ2OVQ0aUVadGRzUTUzUGhqZlY2Z0xnOVBydHY5cgpxSkRrCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURtRENDQW9DZ0F3SUJBZ0lRTjI0c3dJRXlFTTB3cysvLzR5Sm5pekFOQmdrcWhraUc5dzBCQVFzRkFEQWkKTVNBd0hnWURWUVFERXhkd1pYSmpiMjVoTFdOc2RYTjBaWEl5TFhCNFl5MWpZVEFlRncweU5EQTBNakl3TXpBeQpNamhhRncweU5UQTBNakl3TXpBeU1qaGFNQ2d4SmpBa0JnTlZCQU1USFhCbGNtTnZibUV0WTJ4MWMzUmxjakl0CmNIaGpMWEJ5YjNoNWMzRnNNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQXVINVMKWXBJK25MakxlRktrYkFkbE1DNlZxcTc0NDJxV0xxNXRuOWFZSXlyZytBMTJqamIySGVIa09rSmlVOGczc05wNgp6alY3ZFBhR0tSQVFRZEJJOHhSVHhxT2lnR2g4WUN5SkNTNFdHV0lHZkg5QUF6ZWUveTB2Qk5ERWJQckR0SlJhCmFvMXZYMlJVK0pudG5SNGkxWDVsNDFmVjgxVGxPa0g3Qy82VmM5aEgwc29NR3RIb3dHYTZwSHFqNlRVNlk4MFgKODNKRGNTZXI3ajNvTXI3MXk0MmU3dTRnUTlaVUJlTjNvQ0NjcHBmQm03dnhkV2p0eDUzOE9KNmZnTnJqT016UwpmS2lQTzNpUm5XNWcxTWtQVHYrWFR5ZUJTVWRBK0dDeTRXNHc5eXg1UWVpTDdiNWQ4MmtpYWM5U2xLUUkrUHdiCkxybm1sKy9STzBrYjVzeVBSUUlEQVFBQm80SERNSUhBTUE0R0ExVWREd0VCL3dRRUF3SUZvREFkQmdOVkhTVUUKRmpBVUJnZ3JCZ0VGQlFjREFRWUlLd1lCQlFVSEF3SXdEQVlEVlIwVEFRSC9CQUl3QURBZkJnTlZIU01FR0RBVwpnQlRIbkJuK2RyRHhZNHVqNlBZckpldXJ3NlBtd3pCZ0JnTlZIUkVFV1RCWGdoaHdaWEpqYjI1aExXTnNkWE4wClpYSXlMWEI0WXkxd2VHT0NHaW91Y0dWeVkyOXVZUzFqYkhWemRHVnlNaTF3ZUdNdGNIaGpnaDhxTG5CbGNtTnYKYm1FdFkyeDFjM1JsY2pJdGNIaGpMWEJ5YjNoNWMzRnNNQTBHQ1NxR1NJYjNEUUVCQ3dVQUE0SUJBUUF2a25BcwoyZ0lxd1d0cFJPdGhFUlgwL0lRc2FNNjRUZXo1cWgxc1doMnoxdkJSYnFET0V0bHFyeWt3b1NEelVVaDAraFpkCjRwM3NBNy84TS9OdUlsaFM3YUxoWko4MjBaSTh0QUpKQUNRUlNJKzhOZG84NGZNRE53U1o1WDc4Q1dCQUZRYmUKQ2tzTm1oWmx6VCtkeW5QdkxManE2V1JjZU4zVUZMMU8yYWR4WW5vVmp5a3RKWEg5Q3dPNTNxL2RqSmlSREZ0RAp6cWFHN2psUFdpeXgxS1ZzN3BpQVNJNDZIOUxGLzB5OU1RUzgrU1k4emNTRGJmcjE2U1FrSDJTTzk3VEJEVzVHCnBYMTZkSzgrdEJ4clJqRGdqWXREN0JWdFd1dnlkZG1jUHlzS0xSN1lBNmtGeVNSSDNGM1JNYmNwanFOWGdidFIKcVhhY1F1VXdWa21xZ3N4agotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+  tls.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcFFJQkFBS0NBUUVBdUg1U1lwSStuTGpMZUZLa2JBZGxNQzZWcXE3NDQycVdMcTV0bjlhWUl5cmcrQTEyCmpqYjJIZUhrT2tKaVU4ZzNzTnA2empWN2RQYUdLUkFRUWRCSTh4UlR4cU9pZ0doOFlDeUpDUzRXR1dJR2ZIOUEKQXplZS95MHZCTkRFYlByRHRKUmFhbzF2WDJSVStKbnRuUjRpMVg1bDQxZlY4MVRsT2tIN0MvNlZjOWhIMHNvTQpHdEhvd0dhNnBIcWo2VFU2WTgwWDgzSkRjU2VyN2ozb01yNzF5NDJlN3U0Z1E5WlVCZU4zb0NDY3BwZkJtN3Z4CmRXanR4NTM4T0o2ZmdOcmpPTXpTZktpUE8zaVJuVzVnMU1rUFR2K1hUeWVCU1VkQStHQ3k0VzR3OXl4NVFlaUwKN2I1ZDgya2lhYzlTbEtRSStQd2JMcm5tbCsvUk8wa2I1c3lQUlFJREFRQUJBb0lCQUEzRzhTUUhROEcwVXcxegpMbkFheFVXcDFPZGdGWm4xOWEwYXZYajRMM2hBMVhmd21XL1pUdHZBYUtpcEdHcWxRdk5qL1ZPMHpybFhSNEY5CmY1bEtrb2dFZHBVWTF5TzdxYjRNMVZib0tDSlJIYWJpWWNkYnVmWFlTL0NTSG5qODZPeHRQNnRCVUpYUkNqOWUKVDA0eVYrdVZlc3BWWHRiQytqTTFoaWZKSlNQM1hDcm5KaWRIQjUraHdqdWdDZStpQ3pGa0lsRU9jMGZuakVhMApHWFNRcmNsRHQrMTVCY2RBL1pYdTAyY2lDU1pSQWxHSGRKSHNlT2xIWUIzVzhvZmZxNkpPS3BQUHZHWGVvYnY4CkxNZC96QWlPVGNYais4eTZQRUNmRjVLbWpkaEJWdTVOaU9INlNHRTFyclBPT25CYlR0T01nb2FHcUVCUkoyNWEKS2NIbFNFRUNnWUVBeWo2V0xUdURkdlVXR3pkNEd4S29EeFNiQlVPOW1CeDllUlNZR0VEQU1HbktsQ2lKMVFXUQpWYVZ0V3dYYVBjeml6WFdIUnlIQVJXanRqbVc4UnRocWF0dVZTSXlVN29Bd2VhU05GaGpKbmpVY05jRlJhTWZyCitoRTUrNDhYVnQ3RTJBOUx5cWxHYVkrRWtBTGtHZXZsYnFJWUxZV1ErUVNNZElCZHVkUnZQTWtDZ1lFQTZZZmsKdVdXUzdBN1RadmJoeitRTVYySVA0Tk54NThnRDJNTFNSRDdoNE10enJlcWsvS2tuRm1QL01pZjA5b2NucjdOegpvOTk2ZWo4VVh1ZUsrSk5tanFZbFpNeXpEZmtwVzFCWWFXZUtnT0ZGdEdhNDBhUk1EbDFNazk2Z0R2MVo5NkY3Cm9qaXd2bFJOTWNNSjNKQ1hUeTNQYTF0NHRma0EwMG0rZnd3K0NKMENnWUVBaitFMnRiZEJMNy9zbWpBOElnYUQKeVRhL2tsOCs0cGhpSzJHYlVxVytGTE11aTNqTGxlRC9iZTdpZlg4TVpDcityMnlOY08xeCsrOUtFYVFPN2RmSQozWHlhRjZMcjBVRWhPMmoxZG1Mc0RNRjc4RUkzeUhOeVRkVXppdU9obHd1a3ZwRWpPbXB5eldac3lJZEYvNnJ5CjdtSWpFVCtVZzVQWTJJajZKTm9jeVFFQ2dZRUFsdENnTWVzYkd6L24zdE1KdWd4NHUrWWtndm1LMGprbDR0TE8Kb0N4TUM3VFluRFN4SUVyTlozUmsxcXRmVSthdEJwZEowMGI3L2Y3RzFST0xlRVVaTW42eUg0cmpCOThsaWtjMQpFYjFBZ1VMNmxTclJxUElGL0REY3g1STZvL09TS280ckhmU21rQVE1WmkyakxNSmtOVXBNYmZUQTNDUlhHQnpECjNhQzJYekVDZ1lFQXh6YjM0aGdQTTljQ0FlMmhRbG50Y2xDaGlPdnJnNGlnMVFuNkt4VW5pN3lOVGdIVFp4aHIKNXhRVzIzbEdSMHJmdnBVTmd4aEU5SDMybnVTcUtWWUdwRmZ4NllwOW9ZREZiQnZhWVFKMlh2eXozZFlKZU9yNApjQWIxbnE4RFVJSEE0VkpBSWlyVDNGcEVEK0dqSVA3eE5jNDFrSENEZXhOTHVobnJVZ01aQkZVPQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=
+---
+# Source: pxc-db/templates/cluster-ssl-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: percona-cluster2-pxc-ssl-internal
+  namespace: percona-install
+  labels:
+    app.kubernetes.io/name: pxc-db
+    helm.sh/chart: pxc-db-1.14.1
+    app.kubernetes.io/instance: percona-cluster2
+    app.kubernetes.io/version: "1.14.0"
+    app.kubernetes.io/managed-by: Helm
+type: kubernetes.io/tls
+data:
+  ca.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURMekNDQWhlZ0F3SUJBZ0lRTmxwQzBhbTBEUmhYM1ZxTzZJZXJSVEFOQmdrcWhraUc5dzBCQVFzRkFEQWkKTVNBd0hnWURWUVFERXhkd1pYSmpiMjVoTFdOc2RYTjBaWEl5TFhCNFl5MWpZVEFlRncweU5EQTBNakl3TXpBeQpNamhhRncweU5UQTBNakl3TXpBeU1qaGFNQ0l4SURBZUJnTlZCQU1URjNCbGNtTnZibUV0WTJ4MWMzUmxjakl0CmNIaGpMV05oTUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUFxTDIyTVBkcWNFWnYKYmMrMVNaM3FtZzFHeTdkNzRhRUVZb2p4MjE3YkNVSnYrdlFkQ25oT21GOWNGUWJHNmlXQjEvd242UGRTV29nLwpaelpJblBvTnlEU3N5YjA3L3RTQlRoRnFKUTF3amhTZEtCTlVldGVvWTQ4eWZUaXFrVTNvVnFNRUVLZDVjUFloCkdWc0poWjkyM1hXUjVrdXUwVlREZVlEbnhBTnJTZmlHdWM5Y3FTUDZNMXdxSWFGbW11YXhCY1VOOVFTTzFISS8KREdmUklJTHdIU0dRYjgwcXZ5cGpjek5mYi8xYUE1VXVmaHNQR25ZdkZPQmxlak1RT3VLTW5lbnJ1ZjVYRndweQpVazVDcUplbzNsQ3RKYmg0YitMQXhCaFVMQXgvYjBQM2lCZDFDbnJnZ3h2OTNlK21oZEVKeHl2OFBCYW5Ydm5yCldzQjhrbUxEN3dJREFRQUJvMkV3WHpBT0JnTlZIUThCQWY4RUJBTUNBcVF3SFFZRFZSMGxCQll3RkFZSUt3WUIKQlFVSEF3RUdDQ3NHQVFVRkJ3TUNNQThHQTFVZEV3RUIvd1FGTUFNQkFmOHdIUVlEVlIwT0JCWUVGTWVjR2Y1MgpzUEZqaTZQbzlpc2w2NnZEbytiRE1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQ1o1ZWl6dDVTbmxJSFJkckFHCk1VUFFHTEVMUEhmdWNjV1dCbndONXY0R3NiMFJpLzVpZCtTUWtyRHltcm5nUWNVeXVpdDltU2JpZHY3RDBHZDUKMjBKVDJYZ083U1NZYXk2RGtXVDUvbXA0Z2NVT1dqZTRxZ041c1lGQ3dLS0ViampxcXE5TVpSRy9SYzNLNHoyaAppalpxNVFoSjJTZnlNYlFLMzFIc3BiYXE1eGJtQStxWGd4bTNPZjREMU1mTHFuT3VKSVNvM1lGRUxXa3JIRmQwClErUnBCc3VUME1DZGlJMkFZU002STNvdXFscmxac2Z3VDJlOVBLVzVPMzhXYmFPaEVncmVaZFdwMW1nRnNPWkQKcFlTeVE3ckNzNEgzMXBPUXlSUWh5aStFU0p0LzFmTFBlRGQ2OVQ0aUVadGRzUTUzUGhqZlY2Z0xnOVBydHY5cgpxSkRrCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUVyakNDQTVhZ0F3SUJBZ0lSQUlEaEtyK0Q5ZkFkcmk4RzhwNEwwRnN3RFFZSktvWklodmNOQVFFTEJRQXcKSWpFZ01CNEdBMVVFQXhNWGNHVnlZMjl1WVMxamJIVnpkR1Z5TWkxd2VHTXRZMkV3SGhjTk1qUXdOREl5TURNdwpNakk0V2hjTk1qVXdOREl5TURNd01qSTRXakFqTVNFd0h3WURWUVFERXhod1pYSmpiMjVoTFdOc2RYTjBaWEl5CkxYQjRZeTF3ZUdNd2dnRWlNQTBHQ1NxR1NJYjNEUUVCQVFVQUE0SUJEd0F3Z2dFS0FvSUJBUURESU9Lb3RHeEkKb3htcmxuNjhnTm4reWlSWEUrc3NSczFrWFAyZHBVelBmWWhhMEtJWW5NNy9RS28rTnhsdkJZWUlBQW1KUHdaSQp5K1orMk00UWRqRHVuNSsvS1c3bGJhU0VyZXcyVkxRcmxmMnY3eFBZY0dTQXczN05xV25PNE1hQ3hpb2pxaGtjCnluRHBlUXVkVnRWMFBCbDRjV0hpWEMwLytNbFA0N3ZRak5PZHpxbzk0dGdtUmoyK2wvREFLRm5WaUhZNTRqSlEKNDYwd2pTM2Z6T2xEOTJZa1VSYzBjZFlpeVo5UW1LbGp3QmZXMThZcW9mZEFOeERIdURKUzJZVlZ5VE1JRjZ6egpiUjdacXltcys4WWNIUjRmVXJ0L1hkZzRRci9WMVA0RTEvQnUrUEtjQnZMQXkyNkx6V2lzWjgvY2pIZ0VGNHFlCjhzT21LNDh1R09MUEFnTUJBQUdqZ2dIY01JSUIyREFPQmdOVkhROEJBZjhFQkFNQ0JhQXdIUVlEVlIwbEJCWXcKRkFZSUt3WUJCUVVIQXdFR0NDc0dBUVVGQndNQ01Bd0dBMVVkRXdFQi93UUNNQUF3SHdZRFZSMGpCQmd3Rm9BVQp4NXdaL25hdzhXT0xvK2oyS3lYcnE4T2o1c013Z2dGMkJnTlZIUkVFZ2dGdE1JSUJhWUlZY0dWeVkyOXVZUzFqCmJIVnpkR1Z5TWkxd2VHTXRjSGhqZ2hvcUxuQmxjbU52Ym1FdFkyeDFjM1JsY2pJdGNIaGpMWEI0WTRKSGNHVnkKWTI5dVlTMWpiSFZ6ZEdWeU1pMXdlR010YUdGd2NtOTRlUzF5WlhCc2FXTmhjeTV3WlhKamIyNWhMV2x1YzNSaApiR3d1YzNaakxtTnNkWE4wWlhJdWJHOWpZV3lDTlhCbGNtTnZibUV0WTJ4MWMzUmxjakl0Y0hoakxXaGhjSEp2CmVIa3RjbVZ3YkdsallYTXVjR1Z5WTI5dVlTMXBibk4wWVd4c2dpVndaWEpqYjI1aExXTnNkWE4wWlhJeUxYQjQKWXkxb1lYQnliM2g1TFhKbGNHeHBZMkZ6Z2o1d1pYSmpiMjVoTFdOc2RYTjBaWEl5TFhCNFl5MW9ZWEJ5YjNoNQpMbkJsY21OdmJtRXRhVzV6ZEdGc2JDNXpkbU11WTJ4MWMzUmxjaTVzYjJOaGJJSXNjR1Z5WTI5dVlTMWpiSFZ6CmRHVnlNaTF3ZUdNdGFHRndjbTk0ZVM1d1pYSmpiMjVoTFdsdWMzUmhiR3lDSEhCbGNtTnZibUV0WTJ4MWMzUmwKY2pJdGNIaGpMV2hoY0hKdmVIa3dEUVlKS29aSWh2Y05BUUVMQlFBRGdnRUJBQ0taU1N2R2JoVm1pSzVhZXJLUApUWUtmOU1MVkM0UWpoYlBldS94OC9SM2VKQytJOVRKU2E0OVkzWG9uUWQ4TTd4Q2E3MURPaFlIWDZodlU0MGlhCkoxSXFVYlBiOUpyQTdZZ3V4cmRaU0FBTG95OElsRFAwK3gxaWUyaDdHdnRsRUlHbjg2OGdtbUVnWlJSYTNDY3YKZUl6K01RaTNQRzh5VSsrbW1KTHJyMkRSUFR3ZXB6VThzT2VaZzlncEZaRmRqNHRVZ1UvbzdZSTZWaG5QRitXSwpwMWlqY2gwQzJqWU9hSUNIakxmejB4TTVJNVpBb1FnNEpiM3JEaFNPK0Zvc1VOOFpHYU1QZmV3ZFZiNDJrSjZiCjc4MXk0YTh1R2dMZUYvb3JhbXhiUXRBSUM4R2t6TUk1WHFnemRoRTRXY2Q5ZFAybjVpa1AwWmJEQ2lKRmRpODgKcnpJPQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+  tls.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb2dJQkFBS0NBUUVBd3lEaXFMUnNTS01acTVaK3ZJRFovc29rVnhQckxFYk5aRno5bmFWTXozMklXdENpCkdKek8vMENxUGpjWmJ3V0dDQUFKaVQ4R1NNdm1mdGpPRUhZdzdwK2Z2eWx1NVcya2hLM3NObFMwSzVYOXIrOFQKMkhCa2dNTit6YWxwenVER2dzWXFJNm9aSE1wdzZYa0xuVmJWZER3WmVIRmg0bHd0UC9qSlQrTzcwSXpUbmM2cQpQZUxZSmtZOXZwZnd3Q2haMVloMk9lSXlVT090TUkwdDM4enBRL2RtSkZFWE5ISFdJc21mVUppcFk4QVgxdGZHCktxSDNRRGNReDdneVV0bUZWY2t6Q0JlczgyMGUyYXNwclB2R0hCMGVIMUs3ZjEzWU9FSy8xZFQrQk5md2J2ankKbkFieXdNdHVpODFvckdmUDNJeDRCQmVLbnZMRHBpdVBMaGppendJREFRQUJBb0lCQUNJb0Q0VVlrQnZtOFFkbwpRS2NlcHdwQ3VEbkY4dFM5VUJiUmNGTzRLOG5tWDRnR0hWblJtU3AxVjFlc3JYY1JzSFNXRFJWSlF3QmJNTzNqClphN2NBWlREdkdMcURjOTdjZUVIME9GeDBsZ08yV21Db0NhekJlVEVVOTRNV2Nrczc1TFV2V3VneXVTUFMxU1QKSzhWTy9lNXExc3FPam1QaFhzcGo4bGxacy9hOVliS3lRT1NiZWRzM2kvSFBXSE1RaHNicThkK1B5UWgvYVBGVQpYajN5bVRRNmJWWlF4bENLVUVYbW1mdUlJQnlMVXE0cTZXMlFGRFBNTythdnkxUi9HcVE3WS9TbE9ZelpML3pNCnJ6UDAyemVURWMrc3pabk15RlRscEZ2VHRCd3lKa05UUExXaUhGb2NFRitidzhoMEZ6ZWpOTGdhRzRBZnh0UTQKQ3BTZXhZRUNnWUVBMUE4U2p1RzY2VDN5S252aTBsM2RpaHpOMFUrU0Jla29lQ3k3d1NRNlZMcVZFelVVMC83ZgpYMytZRTNOdVFyMDRXdE0rSkJKam8wNVZPVFRnWGo5cG5hZUxMT2c5M01ZMU93SlFjaVZDYnJlYjZJNHhKWVUxClc2alhkR0FjYlBlaFE5TCt3ZmNGWkJpTkNUcnJhQjIrbmFNSVgycGF2MU9PenYrdXRIamQxNnNDZ1lFQTY0KzMKdmdUQzdKMnMwYlorbm9JNXo0NHoxN3p1Z2tTTmVUR1VZVUZ4N2dDT05KRzdjZlBjdGRSUDVjcU5aakJ6WjNnTQp5ZVQ1WVJHbU9Qc3lIWWYxR2ZNRVczVDZzNUVoSEI3V1Y5UUthSnc5NEN3ZWJ1bUFvUER2NklhdDIxR2dUZDdqCnNnMmxaVk1VWTBVdnd3MDhUaXRiMU4zMWU4MTFweFV5UWxNeExXMENnWUIxSmlKOWRxeVlYOVZoclBFQWdFUjgKSVM5K3UzT1MrbHlXRHpobUdjcHp0bVBXcVpOcERqdCtlWEdkQlQ3YmRjY2xQZC90YzQ5QnoydDdYLyszY1ZhNgpkcTJIVUlHa2JvZEhveDZvQUhkenpORS9weFgxZ1dLWjBXdTlhYjhxWDU3aVpqVEJHT01NaWhlWUNzbXp5Z0xjCitRME9FU1l5M2tsZGg1aVBNTnAxWXdLQmdBSkFBeTlMZUZrdVFHSlliZWt4c1Qrc1NnNTdmWU85QitUcWRsSmYKZjZrWVZFTm9TUFFUc2o0Q1l5ajh3RkVEa1hhaGpPMjR4REVMTEIxTE9QVlRRU0lZVWloVmU3ZVBZVk9WYjlLeQo4YzZCLzQxT25wUE1veS9tWFVSSlZRdk5RY3k4bmt3ckdUTllrYzlJNytYYkVJSm1vNS9xNXRkaDVRZk5pZ2RjCktCSVpBb0dBUW5ESVpSY2h3L0ZZZFlGa0dFQWtrOHZKbC9OVWVsQkxyc1FPdE13azB3L2Y2REoxRGpiMjliVUcKWkZXc3FpLy9zdmYvTThEQ1IxZnZXQU10Zjdha3B0WXkzQjNGQXVQdjgrRWozS2hINFFscEYyUFFOZ1B0Zkg1agpqY2hhaDJ2VUhkWHJxRUxRQ0lyYUNkd3NEZHR5OUNMTElzY0dRaGRTdWZhMXdYQWFmZWc9Ci0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg==
+---
+# Source: pxc-db/templates/cluster.yaml
+apiVersion: pxc.percona.com/v1
+kind: PerconaXtraDBCluster
+metadata:
+  name: percona-cluster2-pxc
+  namespace: percona-install
+  labels:
+    app.kubernetes.io/name: pxc-db
+    helm.sh/chart: pxc-db-1.14.1
+    app.kubernetes.io/instance: percona-cluster2
+    app.kubernetes.io/version: "1.14.0"
+    app.kubernetes.io/managed-by: Helm
+  finalizers:
+    - delete-pxc-pods-in-order
+spec:
+  crVersion: 1.14.0
+  secretsName: percona-cluster2-pxc-secrets
+  sslSecretName: percona-cluster2-pxc-ssl
+  sslInternalSecretName: percona-cluster2-pxc-ssl-internal
+  vaultSecretName: percona-cluster2-pxc-vault
+  logCollectorSecretName: percona-cluster2-pxc-log-collector
+  enableCRValidationWebhook: false
+  pause: false
+  updateStrategy: SmartUpdate
+  upgradeOptions:
+    versionServiceEndpoint: https://check.percona.com
+    apply: disabled
+    schedule: 0 4 * * *
+  pxc:
+    size: 3
+    image: percona/percona-xtradb-cluster:8.0.35-27.1
+    autoRecovery: true
+    readinessDelaySec: 15
+    livenessDelaySec: 300
+    annotations:
+      {}
+    labels:
+      {}
+    resources:
+      requests:
+        cpu: 600m
+        memory: 1G
+      limits:
+        {}
+    sidecars:
+      []
+    sidecarVolumes:
+      []
+    sidecarPVCs:
+      []
+    sidecarResources:
+      requests:
+        {}
+      limits:
+        {}
+    nodeSelector:
+      {}
+    affinity:
+      antiAffinityTopologyKey: kubernetes.io/hostname
+    tolerations:
+      []
+    podDisruptionBudget:
+      maxUnavailable: 1
+    volumeSpec:
+      persistentVolumeClaim:
+        storageClassName: "5Gi"
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: "8Gi"
+    gracePeriod: 600
+    readinessProbes:
+      failureThreshold: 5
+      initialDelaySeconds: 15
+      periodSeconds: 30
+      successThreshold: 1
+      timeoutSeconds: 15
+    livenessProbes:
+      failureThreshold: 3
+      initialDelaySeconds: 300
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 5
+  haproxy:
+    enabled: true
+    size: 1
+    image: percona/percona-xtradb-cluster-operator:1.14.0-haproxy
+    annotations:
+      {}
+    labels:
+      {}
+    resources:
+      requests:
+        cpu: 600m
+        memory: 1G
+      limits:
+        {}
+    sidecars:
+      []
+    sidecarVolumes:
+      []
+    sidecarPVCs:
+      []
+    sidecarResources:
+      requests:
+        {}
+      limits:
+        {}
+    nodeSelector:
+      {}
+    affinity:
+      antiAffinityTopologyKey: kubernetes.io/hostname
+    tolerations:
+      []
+    podDisruptionBudget:
+      maxUnavailable: 1
+    volumeSpec:
+      emptyDir: {}
+    gracePeriod: 30
+    readinessDelaySec: 15
+    livenessDelaySec: 300
+    readinessProbes:
+      failureThreshold: 3
+      initialDelaySeconds: 15
+      periodSeconds: 5
+      successThreshold: 1
+      timeoutSeconds: 1
+    livenessProbes:
+      failureThreshold: 4
+      initialDelaySeconds: 60
+      periodSeconds: 30
+      successThreshold: 1
+      timeoutSeconds: 5
+  proxysql:
+    enabled: false
+  logcollector:
+    enabled: true
+    image: percona/percona-xtradb-cluster-operator:1.14.0-logcollector
+    resources:
+      requests:
+        cpu: 200m
+        memory: 100M
+      limits:
+        {}
+  pmm:
+    enabled: false
+  backup:
+    image: percona/percona-xtradb-cluster-operator:1.14.0-pxc8.0-backup-pxb8.0.35
+    pitr:
+      enabled: false
+    storages:
+      ceph-s3-us-west:
+        s3:
+          bucket: percona-backups-test
+      percona-backup:
+        volume:
+          persistentVolumeClaim:
+            resources:
+              requests:
+                storage: 2Gi
+            storageClassName: csi-rbd-sc
+    schedule:
+      - keep: 5
+        name: volume-backup-1
+        schedule: 0 0 * * *
+        storageName: percona-backup-new
+      - keep: 5
+        name: s3-backup-1
+        schedule: 0 0 * * *
+        storageName: ceph-s3-us-west
+
+NOTES:
+#
+
+                    %                        _____
+                   %%%                      |  __ \
+                 ###%%%%%%%%%%%%*           | |__) |__ _ __ ___ ___  _ __   __ _
+                ###  ##%%      %%%%         |  ___/ _ \ '__/ __/ _ \| '_ \ / _` |
+              ####     ##%       %%%%       | |  |  __/ | | (_| (_) | | | | (_| |
+             ###        ####      %%%       |_|   \___|_|  \___\___/|_| |_|\__,_|
+           ,((###         ###     %%%        _      _          _____                       _
+          (((( (###        ####  %%%%       | |   / _ \       / ____|                     | |
+         (((     ((#         ######         | | _| (_) |___  | (___   __ _ _   _  __ _  __| |
+       ((((       (((#        ####          | |/ /> _ </ __|  \___ \ / _` | | | |/ _` |/ _` |
+      /((          ,(((        *###         |   <| (_) \__ \  ____) | (_| | |_| | (_| | (_| |
+    ////             (((         ####       |_|\_\\___/|___/ |_____/ \__, |\__,_|\__,_|\__,_|
+   ///                ((((        ####                                  | |
+ /////////////(((((((((((((((((########                                 |_|   Join @ percona.com/k8s
+
+
+Join Percona Squad! Get early access to new product features, invite-only ”ask me anything” sessions with Percona Kubernetes experts, and monthly swag raffles.
+
+>>> https://percona.com/k8s <<<
+
+1. To get a MySQL prompt inside your new cluster you can run:
+    ROOT_PASSWORD=`kubectl -n percona-install get secrets percona-cluster2-pxc-secrets -o jsonpath="{.data.root}" | base64 --decode`
+    kubectl -n percona-install exec -ti \
+      percona-cluster2-pxc-pxc-0 -c pxc -- mysql -uroot -p"$ROOT_PASSWORD"
+
+
+2. To connect an Application running in the same Kubernetes cluster you can connect with:
+    ROOT_PASSWORD=`kubectl -n percona-install get secrets percona-cluster2-pxc-secrets -o jsonpath="{.data.root}" | base64 --decode`
+
+    kubectl run -i --tty --rm percona-client --image=percona --restart=Never \
+  -- mysql -h percona-cluster2-pxc-haproxy.percona-install.svc.cluster.local -uroot -p"$ROOT_PASSWORD"

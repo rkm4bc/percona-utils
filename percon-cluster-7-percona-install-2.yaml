@@ -1,0 +1,212 @@
+allowUnsafeConfigurations: false
+annotations: {}
+backup:
+  enabled: true
+  image:
+    repository: docker.io/percona/percona-xtradb-cluster-operator
+    tag: 1.14.0-pxc8.0-backup-pxb8.0.35
+  imagePullSecrets: []
+  pitr:
+    enabled: false
+    resources:
+      limits: {}
+      requests: {}
+    storageName: percona-backup
+    timeBetweenUploads: 60
+    timeoutSeconds: 60
+  schedule:
+  - keep: 5
+    name: volume-backup
+    schedule: 0 0 * * *
+    storageName: percona-backup
+  - keep: 5
+    name: s3-backup
+    schedule: 0 0 * * 0
+    storageName: ceph-s3-us-west
+  storages:
+    ceph-s3-us-west:
+      s3:
+        bucket: percona-backups-test
+        credentialsSecret: pxc-s3-ceph-s3-us-west
+        endpointUrl: https://machi-nas-s.hpc.virginia.edu:7480
+      type: s3
+      verifyTLS: false
+    percona-backup:
+      type: filesystem
+      volume:
+        persistentVolumeClaim:
+          accessModes:
+          - ReadWriteOnce
+          resources:
+            requests:
+              storage: 5Gi
+          storageClassName: csi-rbd-sc
+crVersion: 1.14.2
+enableCRValidationWebhook: false
+finalizers:
+- delete-pxc-pods-in-order
+- delete-proxysql-pvc
+fullnameOverride: ""
+haproxy:
+  affinity:
+    antiAffinityTopologyKey: kubernetes.io/hostname
+  annotations: {}
+  enabled: true
+  gracePeriod: 30
+  image: docker.io/percona/percona-xtradb-cluster-operator:1.14.0-haproxy
+  imagePullSecrets: []
+  labels: {}
+  livenessDelaySec: 300
+  livenessProbes:
+    failureThreshold: 4
+    initialDelaySeconds: 60
+    periodSeconds: 30
+    successThreshold: 1
+    timeoutSeconds: 5
+  nodeSelector: {}
+  podDisruptionBudget:
+    maxUnavailable: 1
+  readinessDelaySec: 15
+  readinessProbes:
+    failureThreshold: 3
+    initialDelaySeconds: 15
+    periodSeconds: 5
+    successThreshold: 1
+    timeoutSeconds: 1
+  resources:
+    limits: {}
+    requests:
+      cpu: 600m
+      memory: 1G
+  sidecarPVCs: []
+  sidecarResources:
+    limits: {}
+    requests: {}
+  sidecarVolumes: []
+  sidecars: []
+  size: 1
+  tolerations: []
+ignoreAnnotations: []
+ignoreLabels: []
+logcollector:
+  enabled: true
+  image: docker.io/percona/percona-xtradb-cluster-operator:1.14.0-logcollector
+  imagePullSecrets: []
+  resources:
+    limits: {}
+    requests:
+      cpu: 200m
+      memory: 100M
+nameOverride: ""
+operatorImageRepository: docker.io/percona/percona-xtradb-cluster-operator
+pause: false
+pmm:
+  enabled: false
+  image:
+    repository: percona/pmm-client
+    tag: 2.41.0
+  imagePullSecrets: []
+  resources:
+    limits: {}
+    requests:
+      cpu: 300m
+      memory: 150M
+  serverHost: monitoring-service
+  serverUser: admin
+proxysql:
+  affinity:
+    antiAffinityTopologyKey: kubernetes.io/hostname
+  annotations: {}
+  enabled: false
+  gracePeriod: 30
+  image: ""
+  imagePullSecrets: []
+  labels: {}
+  livenessDelaySec: 300
+  nodeSelector: {}
+  persistence:
+    accessMode: ReadWriteOnce
+    enabled: true
+    size: 8Gi
+    storageClass: csi-rbd-sc
+  podDisruptionBudget:
+    maxUnavailable: 1
+  readinessDelaySec: 15
+  resources:
+    limits: {}
+    requests:
+      cpu: 600m
+      memory: 1G
+  sidecarPVCs: []
+  sidecarResources:
+    limits: {}
+    requests: {}
+  sidecarVolumes: []
+  sidecars: []
+  size: 3
+  tolerations: []
+pxc:
+  affinity:
+    antiAffinityTopologyKey: kubernetes.io/hostname
+  annotations: {}
+  autoRecovery: true
+  certManager: false
+  disableTLS: false
+  gracePeriod: 600
+  image:
+    repository: docker.io/percona/percona-xtradb-cluster
+    tag: 8.0.35-27.1
+  imagePullSecrets: []
+  labels: {}
+  livenessDelaySec: 300
+  livenessProbes:
+    failureThreshold: 3
+    initialDelaySeconds: 300
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 5
+  nodeSelector: {}
+  persistence:
+    accessMode: ReadWriteOnce
+    enabled: true
+    reclaimPolicy: Retain
+    size: 5Gi
+    storageClass: csi-rbd-sc
+  podDisruptionBudget:
+    maxUnavailable: 1
+  readinessDelaySec: 15
+  readinessProbes:
+    failureThreshold: 5
+    initialDelaySeconds: 15
+    periodSeconds: 30
+    successThreshold: 1
+    timeoutSeconds: 15
+  resources:
+    limits: {}
+    requests:
+      cpu: 600m
+      memory: 1G
+  sidecarPVCs: []
+  sidecarResources:
+    limits: {}
+    requests: {}
+  sidecarVolumes: []
+  sidecars: []
+  size: 3
+  tolerations: []
+secrets:
+  passwords:
+    clustercheck: insecure-clustercheck-password
+    monitor: insecure-monitor-password
+    operator: insecure-operator-password
+    proxyadmin: insecure-proxyadmin-password
+    replication: insecure-replication-password
+    root: insecure-root-password
+    xtrabackup: insecure-xtrabackup-password
+  tls: {}
+tls: {}
+updateStrategy: SmartUpdate
+upgradeOptions:
+  apply: disabled
+  schedule: 0 4 * * *
+  versionServiceEndpoint: https://check.percona.com
